@@ -57,7 +57,7 @@ const simulateUpload = async (file, onProgress) => {
             });
 
             // Call AI analysis edge function
-            const result = await apperClient.functions.invoke('VITE_ANALYZE_IMAGE', {
+            const result = await apperClient.functions.invoke(import.meta.env.VITE_ANALYZE_IMAGE, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
