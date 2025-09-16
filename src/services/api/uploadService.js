@@ -4,8 +4,8 @@ import { convertImageToBase64 } from "@/utils/fileUtils";
 let uploadHistory = [];
 let currentUploads = new Map();
 
-const simulateUpload = (file, onProgress) => {
-  return new Promise((resolve, reject) => {
+const simulateUpload = async (file, onProgress) => {
+  return new Promise(async (resolve, reject) => {
     const uploadId = Math.random().toString(36).substr(2, 9);
     let progress = 0;
     
@@ -14,7 +14,7 @@ const simulateUpload = (file, onProgress) => {
     const interval = 100; // Update every 100ms
     const increment = (100 * interval) / duration;
     
-    const timer = setInterval(() => {
+    const timer = setInterval(async () => {
       progress += increment + Math.random() * 5; // Add some randomness
       progress = Math.min(progress, 100);
       
@@ -29,15 +29,15 @@ const simulateUpload = (file, onProgress) => {
           reject(new Error("Upload failed due to network error"));
         } else {
           const uploadedFile = {
-Id: uploadHistory.length + 1,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          uploadedAt: new Date().toISOString(),
-          url: URL.createObjectURL(file),
-          description: null,
-          isAnalyzing: false
-        };
+            id: uploadHistory.length + 1,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            uploadedAt: new Date().toISOString(),
+            url: URL.createObjectURL(file),
+            description: null,
+            isAnalyzing: false
+          };
 
         uploadHistory.push(uploadedFile);
 

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import DropZone from "@/components/molecules/DropZone";
+import { getUploadConfig, uploadFile } from "@/services/api/uploadService";
+import { createFilePreview, validateFile } from "@/utils/fileUtils";
+import ApperIcon from "@/components/ApperIcon";
 import FileItem from "@/components/molecules/FileItem";
 import UploadProgress from "@/components/molecules/UploadProgress";
+import DropZone from "@/components/molecules/DropZone";
 import Button from "@/components/atoms/Button";
-import ApperIcon from "@/components/ApperIcon";
-import { uploadFile, getUploadConfig } from "@/services/api/uploadService";
-import { validateFile, createFilePreview } from "@/utils/fileUtils";
 
 const FileUploader = () => {
   const [uploadFiles, setUploadFiles] = useState([]);
@@ -57,9 +57,9 @@ const FileUploader = () => {
         break;
       }
       
-      // Create preview if it's an image
+// Create preview if it's an image
       const preview = await createFilePreview(file);
-const uploadFileObj = {
+      const uploadFileObj = {
         id: Date.now() + Math.random(),
         name: file.name,
         size: file.size,
@@ -73,7 +73,7 @@ const uploadFileObj = {
         isAnalyzing: false
       };
       
-      newFiles.push(uploadFile);
+      newFiles.push(uploadFileObj);
     }
     
     if (newFiles.length > 0) {
@@ -117,21 +117,20 @@ const uploadFileObj = {
       currentProgress: 0
     });
     
-    let completed = 0;
+let completed = 0;
     
-    for (const uploadFile of pendingFiles) {
+    for (const fileToUpload of pendingFiles) {
       try {
         // Update file status to uploading
         setUploadFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
+          f.id === fileToUpload.id 
             ? { ...f, status: "uploading", progress: 0, error: null }
             : f
         ));
-        
 // Upload file with progress tracking
-        const uploadedFile = await uploadFile(uploadFileObj.file, (progress) => {
+        const uploadedFile = await uploadFile(fileToUpload.file, (progress) => {
           setUploadFiles(prev => prev.map(f => 
-            f.id === uploadFileObj.id 
+            f.id === fileToUpload.id 
               ? { ...f, progress: progress }
               : f
           ));
@@ -140,7 +139,7 @@ const uploadFileObj = {
 
         // Update file with server response including AI description
         setUploadFiles(prev => prev.map(f => 
-          f.id === uploadFileObj.id 
+          f.id === fileToUpload.id 
             ? { 
                 ...f, 
                 status: "completed",
@@ -152,7 +151,7 @@ const uploadFileObj = {
         
         // Mark as completed
         setUploadFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
+          f.id === fileToUpload.id 
             ? { ...f, status: "completed", progress: 100 }
             : f
         ));
@@ -163,11 +162,11 @@ const uploadFileObj = {
       } catch (error) {
         // Mark as error
         setUploadFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
+          f.id === fileToUpload.id 
             ? { ...f, status: "error", error: error.message }
             : f
         ));
-        toast.error(`Failed to upload ${uploadFile.name}: ${error.message}`);
+        toast.error(`Failed to upload ${fileToUpload.name}: ${error.message}`);
       }
     }
     
