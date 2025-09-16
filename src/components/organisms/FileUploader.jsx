@@ -59,8 +59,7 @@ const FileUploader = () => {
       
       // Create preview if it's an image
       const preview = await createFilePreview(file);
-      
-      const uploadFile = {
+const uploadFileObj = {
         id: Date.now() + Math.random(),
         name: file.name,
         size: file.size,
@@ -69,7 +68,9 @@ const FileUploader = () => {
         progress: 0,
         file: file,
         preview: preview,
-        error: null
+        error: null,
+        description: null,
+        isAnalyzing: false
       };
       
       newFiles.push(uploadFile);
@@ -127,15 +128,27 @@ const FileUploader = () => {
             : f
         ));
         
-        // Upload file with progress tracking
-        await uploadFile(uploadFile.file, (progress) => {
+// Upload file with progress tracking
+        const uploadedFile = await uploadFile(uploadFileObj.file, (progress) => {
           setUploadFiles(prev => prev.map(f => 
-            f.id === uploadFile.id 
+            f.id === uploadFileObj.id 
               ? { ...f, progress: progress }
               : f
           ));
           setUploadStats(prev => ({ ...prev, currentProgress: progress }));
         });
+
+        // Update file with server response including AI description
+        setUploadFiles(prev => prev.map(f => 
+          f.id === uploadFileObj.id 
+            ? { 
+                ...f, 
+                status: "completed",
+                description: uploadedFile.description,
+                isAnalyzing: uploadedFile.isAnalyzing
+              }
+            : f
+        ));
         
         // Mark as completed
         setUploadFiles(prev => prev.map(f => 

@@ -25,7 +25,26 @@ export const getFileTypeIcon = (type) => {
 };
 
 export const isImageFile = (type) => {
-  return type.startsWith("image/");
+return type.startsWith("image/");
+};
+
+// Convert image file to base64 for OpenAI API
+export const convertImageToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      reject(new Error('File is not an image'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      // Extract base64 data (remove data:image/...;base64, prefix)
+      const base64 = e.target.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
 };
 
 export const createFilePreview = (file) => {

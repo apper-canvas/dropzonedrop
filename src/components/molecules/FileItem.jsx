@@ -66,10 +66,21 @@ const FileItem = ({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
                 {uploadFile.name}
-              </p>
+</p>
               <p className="text-xs text-gray-500 mt-1">
                 {formatFileSize(uploadFile.size)}
               </p>
+              {uploadFile.type.startsWith('image/') && (
+                <p className="text-xs text-blue-600 mt-1 italic">
+                  {uploadFile.isAnalyzing ? (
+                    <span className="animate-pulse">Analyzing image...</span>
+                  ) : uploadFile.description ? (
+                    uploadFile.description
+                  ) : uploadFile.status === 'completed' ? (
+                    'Description unavailable'
+                  ) : null}
+                </p>
+              )}
             </div>
             
             <div className="flex items-center gap-2 flex-shrink-0">

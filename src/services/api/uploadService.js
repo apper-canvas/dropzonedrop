@@ -1,4 +1,5 @@
 import uploadConfig from "@/services/mockData/uploadConfig.json";
+import { convertImageToBase64 } from "@/utils/fileUtils";
 
 let uploadHistory = [];
 let currentUploads = new Map();
@@ -28,16 +29,61 @@ const simulateUpload = (file, onProgress) => {
           reject(new Error("Upload failed due to network error"));
         } else {
           const uploadedFile = {
-            Id: uploadHistory.length + 1,
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            uploadedAt: new Date().toISOString(),
-            url: URL.createObjectURL(file)
-          };
-          uploadHistory.push(uploadedFile);
-          resolve(uploadedFile);
+Id: uploadHistory.length + 1,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          uploadedAt: new Date().toISOString(),
+          url: URL.createObjectURL(file),
+          description: null,
+          isAnalyzing: false
+        };
+
+        uploadHistory.push(uploadedFile);
+
+        // Analyze image if it's an image file
+        if (file.type.startsWith('image/')) {
+          uploadedFile.isAnalyzing = true;
+          
+          try {
+            // Convert image to base64
+            const imageBase64 = await convertImageToBase64(file);
+            
+            // Initialize ApperClient for edge function calls
+            const { ApperClient } = window.ApperSDK;
+            const apperClient = new ApperClient({
+              apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+              apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+            });
+
+            // Call AI analysis edge function
+            const result = await apperClient.functions.invoke('VITE_ANALYZE_IMAGE', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                imageBase64: imageBase64,
+                fileName: file.name
+              })
+            });
+
+            if (result.success) {
+              uploadedFile.description = result.description;
+            } else {
+              console.warn('AI analysis failed:', result.error);
+              uploadedFile.description = 'Image analysis unavailable';
+            }
+          } catch (error) {
+            console.error('Image analysis error:', error);
+            uploadedFile.description = 'Image analysis failed';
+          } finally {
+            uploadedFile.isAnalyzing = false;
+          }
         }
+
+        resolve(uploadedFile);
+      }
       }
     }, interval);
     
