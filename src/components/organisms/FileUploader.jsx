@@ -58,7 +58,7 @@ const FileUploader = () => {
       }
       
 // Create preview if it's an image
-      const preview = await createFilePreview(file);
+const preview = await createFilePreview(file);
       const uploadFileObj = {
         id: Date.now() + Math.random(),
         name: file.name,
@@ -137,7 +137,7 @@ let completed = 0;
           setUploadStats(prev => ({ ...prev, currentProgress: progress }));
         });
 
-        // Update file with server response including AI description
+// Update file with server response including AI description
         setUploadFiles(prev => prev.map(f => 
           f.id === fileToUpload.id 
             ? { 

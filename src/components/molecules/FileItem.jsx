@@ -70,7 +70,7 @@ const FileItem = ({
               <p className="text-xs text-gray-500 mt-1">
                 {formatFileSize(uploadFile.size)}
               </p>
-              {uploadFile.type.startsWith('image/') && (
+{uploadFile.type.startsWith('image/') && (
                 <p className="text-xs text-blue-600 mt-1 italic">
                   {uploadFile.isAnalyzing ? (
                     <span className="animate-pulse">Analyzing image...</span>

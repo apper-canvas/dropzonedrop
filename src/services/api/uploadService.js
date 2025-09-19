@@ -42,7 +42,7 @@ const simulateUpload = async (file, onProgress) => {
         uploadHistory.push(uploadedFile);
 
         // Analyze image if it's an image file
-        if (file.type.startsWith('image/')) {
+if (file.type.startsWith('image/')) {
           uploadedFile.isAnalyzing = true;
           
           try {
